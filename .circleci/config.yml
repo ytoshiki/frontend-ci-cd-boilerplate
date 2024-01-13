@@ -51,7 +51,7 @@ jobs:
             npm install 
             npm run build
             cd dist 
-            zip ../dist.zip -f * .[^.]*
+            zip ../dist.zip -r * .[^.]*
             echo "Build succeeded"
       - run:
           name: Deploy to AWS S3
@@ -92,7 +92,7 @@ jobs:
       - run:
           name: Invalidate CloudFront Cache
           command: |
-            aws configure set preview.cloudfront
+            aws configure set preview.cloudfront true
             if [ "${CIRCLE_BRANCH}" == "master" ]
             then
               aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --paths /\*
