@@ -29,3 +29,27 @@ jobs:
           key: app-{{ checksum "package.json" }}
           paths:
             - node_modules
+  deploy-to-aws-s3:
+    docker:
+      - image: cimg/node:18.17.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Show current branch
+          command: echo ${CURRENT_BRANCH}
+      - run:
+          name: Installing AWS CLI
+          working_directory: /
+          command: |
+            sudo apt-get -y -qq update 
+            sudo apt-get install -y awscli 
+            sudo apt-get install -y python-pip python-dev build-essential
+      - run:
+          name: Build project
+          command: |
+            npm install 
+            npm run build
+            cd dist 
+            zip ../dist.zip -f * .[^.]*
+            echo "Build succeeded"
