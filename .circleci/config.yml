@@ -15,7 +15,7 @@ jobs:
           name: Show current branch
           command: echo ${CURRENT_BRANCH}
       - restore_cache:
-          key:
+          keys:
             # Search for the cache that matches the checksum of this package.json
             # This key will fail if this file has been modified
             - app-{{ checksum "package.json" }}
