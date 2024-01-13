@@ -1,0 +1,27 @@
+# CircleCI configuration file
+
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      # Primary container image where all steps run
+      - image: cimg/node:18.17.0
+    # Could be called whatever, it's just where CircleCI image will be added
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Show current branch
+          command: echo ${CURRENT_BRANCH}
+      - restore_cache:
+          key:
+            # Search for the cache that matches the checksum of this package.json
+            # This key will fail if this file has been modified
+            - app-{{ checksum "package.json" }}
+            # Search for the most recently generated cache used from any branch.
+            - app-
+      - save_cache:
+          key: app-{{ checksum "package.json" }}
+          paths:
+            - node_modules
