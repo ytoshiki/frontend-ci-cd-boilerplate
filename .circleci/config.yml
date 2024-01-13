@@ -65,7 +65,7 @@ jobs:
             else
               aws --region ${AWS_REGION} s3 sync ~/repo/dist s3://${AWS_DEV_BUCKET} --delete
             fi
-  invalidate-CloudFront-cache:
+  invalidate-cloudfront-cache:
     docker:
       - image: cimg/node:18.17.0
     working_directory: ~/repo
@@ -102,3 +102,26 @@ jobs:
             else
               aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --paths /\*
             fi
+
+workflows:
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy-to-aws-s3:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - production
+      - invalidate-cloudfront-cache:
+          requires:
+            - deploy-to-aws-s3
+          filters:
+            branches:
+              only:
+                - develop
+                - staging
+                - production
