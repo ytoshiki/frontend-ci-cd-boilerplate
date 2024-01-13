@@ -21,6 +21,10 @@ jobs:
             - app-{{ checksum "package.json" }}
             # Search for the most recently generated cache used from any branch.
             - app-
+      - run:
+          name: Install dependencies
+          command: npm install
+      # this is not called if cache found in restore_cache
       - save_cache:
           key: app-{{ checksum "package.json" }}
           paths:
