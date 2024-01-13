@@ -53,3 +53,16 @@ jobs:
             cd dist 
             zip ../dist.zip -f * .[^.]*
             echo "Build succeeded"
+      - run:
+          name: Deploy to AWS S3
+          command: |
+            if [ "${CURRENT_BRANCH}" == "master" ]
+            then
+              aws --region ${AWS_REGION} s3 sync ~/repo/dist s3://${AWS_PRODUCTION_BUCKET} --delete
+            elif [ "${CURRENT_BRANCH}" == "staging" ]
+            then
+              aws --region ${AWS_REGION} s3 sync ~/repo/dist s3://${AWS_STAGING_BUCKET} --delete
+            elif [ "${CURRENT_BRANCH}" == "develop" ]
+            else
+              aws --region ${AWS_REGION} s3 sync ~/repo/dist s3://${AWS_DEV_BUCKET} --delete
+            fi
