@@ -117,9 +117,13 @@ workflows:
       - build:
           requires:
             - linting
-      - deploy-to-aws-s3:
+      - hold:
+          type: approval
           requires:
             - build
+      - deploy-to-aws-s3:
+          requires:
+            - hold
           filters:
             branches:
               only:
@@ -128,6 +132,7 @@ workflows:
                 - production
       - invalidate-cloudfront-cache:
           requires:
+            - hold
             - deploy-to-aws-s3
           filters:
             branches:
