@@ -10,7 +10,13 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs", "setupTests.js", "__mocks__"],
+  ignorePatterns: [
+    "dist",
+    ".eslintrc.cjs",
+    "setupTests.js",
+    "__mocks__",
+    "vite.config.ts",
+  ],
   parser: "@typescript-eslint/parser",
   plugins: ["react-refresh", "jest", "jest-dom", "testing-library"],
   rules: {
