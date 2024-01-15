@@ -81,7 +81,7 @@ jobs:
       - *save-cache
       - run:
           name: Run Prettier
-          command: npm run pretter:check
+          command: npm run prettier:check
   deploy-to-aws-s3:
     executor: app-executor
     steps:
