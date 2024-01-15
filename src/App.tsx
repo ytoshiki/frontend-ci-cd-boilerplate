@@ -1,4 +1,4 @@
-import "./App.css";
+import './App.css'
 
 const App = () => {
   return (
@@ -6,7 +6,7 @@ const App = () => {
       <div>Hello World</div>
       <div>This is {process.env.NODE_ENV} environment</div>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App
