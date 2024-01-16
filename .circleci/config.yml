@@ -10,6 +10,9 @@ executors:
       - image: cimg/node:18.17.0
     # Could be called whatever, it's just where CircleCI image will be added
     working_directory: ~/repo
+  slack-executor:
+    docker:
+      - image: 'cimg/base:stable'
 aliases:
   - &show-current-branch
     run:
@@ -121,27 +124,61 @@ jobs:
               aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --paths /\*
             fi
   notify:
-    docker:
-      - image: 'cimg/base:stable'
+    executor: slack-executor
     steps:
       - slack/notify:
           custom: |
             {
               "blocks": [
                 {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${CIRCLE_BRANCH} branch deployment to aws s3 and cloudfront is complete. 👍",
+                    "emoji": true
+                  }
+                },
+                {
                   "type": "section",
                   "fields": [
                     {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
+                      "type": "mrkdwn",
+                      "text": "*Project*:\n$CIRCLE_PROJECT_REPONAME"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Branch*:\n$CIRCLE_BRANCH"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*When*:\n$(date +'%m/%d/%Y %T')"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Build*:\n$CIRCLE_BUILD_NUM"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Author*:\n$CIRCLE_PROJECT_USERNAME"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Job"
+                      },
+                      "url": "${CIRCLE_BUILD_URL}"
                     }
                   ]
                 }
               ]
             }
           event: always
-          template: success_tagged_deploy_1
 
 workflows:
   build_and_deploy:
@@ -170,11 +207,13 @@ workflows:
                 - develop
                 - staging
                 - production
-  send-notification:
-    jobs:
       - notify:
+          requires:
+            - invalidate-cloudfront-cache
           filters:
             branches:
               only:
-                - feature/slack
+                - develop
+                - staging
+                - master
           context: slack-secrets
