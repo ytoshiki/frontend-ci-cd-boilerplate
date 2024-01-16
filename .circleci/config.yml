@@ -1,7 +1,8 @@
 # CircleCI configuration file
 
 version: 2.1
-
+orbs:
+  slack: circleci/slack@4.9.3
 executors:
   app-executor:
     docker:
@@ -9,7 +10,6 @@ executors:
       - image: cimg/node:18.17.0
     # Could be called whatever, it's just where CircleCI image will be added
     working_directory: ~/repo
-
 aliases:
   - &show-current-branch
     run:
@@ -120,7 +120,27 @@ jobs:
             else
               aws cloudfront create-invalidation --distribution-id ${DEV_DISTRIBUTION_ID} --paths /\*
             fi
-
+  notify:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
 workflows:
   build_and_deploy:
     jobs:
@@ -148,3 +168,11 @@ workflows:
                 - develop
                 - staging
                 - production
+  send-notification:
+    jobs:
+      - notify:
+          filters:
+            branches:
+              only:
+                - feature/slack
+          context: slack-secrets
