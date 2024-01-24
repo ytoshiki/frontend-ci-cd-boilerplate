@@ -1,13 +1,13 @@
 variable "prefix" {
-  default = "boilerplate"
+  default = "ytoshi"
 }
 
 variable "project" {
-  default = "boilerplate-app"
+  default = "ytoshi-app"
 }
 
 // CloudFront
-variable "custom_error_response" {
+variable "custom_error_responses" {
   type = list(object({
     error_caching_min_ttl = number
     error_code            = number
